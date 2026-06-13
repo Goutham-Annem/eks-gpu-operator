@@ -1,0 +1,50 @@
+apiVersion: nvidia.com/v1
+kind: ClusterPolicy
+metadata:
+  name: gpu-cluster-policy
+spec:
+  operator:
+    defaultRuntime: containerd
+
+  driver:
+    enabled: true
+    repository: nvcr.io/nvidia
+    image: driver
+    version: "550.54.15"
+    rdma:
+      enabled: false    # enable for EFA-backed P4d/P4de instances
+
+  toolkit:
+    enabled: true
+    repository: nvcr.io/nvidia/k8s
+    image: container-toolkit
+    version: v1.15.0-ubuntu20.04
+
+  devicePlugin:
+    enabled: true
+    repository: nvcr.io/nvidia
+    image: k8s-device-plugin
+    version: v0.15.0
+    config:
+      name: time-slicing-config  # reference the ConfigMap below
+      default: "any"
+
+  dcgm:
+    enabled: true
+
+  dcgmExporter:
+    enabled: true
+    repository: nvcr.io/nvidia/k8s
+    image: dcgm-exporter
+    version: 3.3.5-3.4.0-ubuntu22.04
+    serviceMonitor:
+      enabled: true  # scrape via Prometheus ServiceMonitor
+
+  nodeStatusExporter:
+    enabled: true
+
+  gfd:
+    enabled: true  # GPU Feature Discovery — labels nodes with GPU capabilities
+
+  mig:
+    strategy: single  # single | mixed
